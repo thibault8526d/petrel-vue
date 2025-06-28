@@ -1,0 +1,6 @@
+<plugin version="1.0">
+  <name>Petrel Vue</name>
+  <description>Affiche des images JPG géoréférencées (.jpg+.jgw) comme couche raster.</description>
+  <icon>data/icon.png</icon>
+  <author>LV Beylier</author>
+</plugin>

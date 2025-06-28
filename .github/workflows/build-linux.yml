@@ -1,0 +1,46 @@
+name: Build Plugin on Ubuntu
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential cmake gettext \
+            libwxgtk3.0-gtk3-dev libwxbase3.0-dev \
+            libglu1-mesa-dev libcurl4-openssl-dev \
+            libexpat1-dev
+
+      - name: Clone OpenCPN for headers
+        run: |
+          git clone https://github.com/OpenCPN/OpenCPN.git ../OpenCPN
+          mkdir ../OpenCPN/build && cd ../OpenCPN/build
+          cmake .. -DCMAKE_BUILD_TYPE=Release
+          make -j$(nproc)
+
+      - name: Build plugin
+        run: |
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release \
+                   -DOCPN_TARGET=linux \
+                   -DOCPN_SOURCE_DIR=../OpenCPN
+          make -j$(nproc)
+
+      - name: Archive plugin binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: opencpn-jpg-plugin-linux
+          path: build/*.so
+
